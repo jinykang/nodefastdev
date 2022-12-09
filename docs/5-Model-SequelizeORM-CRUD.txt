@@ -1,0 +1,359 @@
+
+0)MySQL서버에 빈 데이터베이스(스키마)를 생성한다.
+-charset/collation: utf-0/utf8-bin 
+-db name: eddy-blog
+
+
+
+1)Sequelize ORM 프로젝트 템플릿 환경 구성하기 
+npm install sequelize mysql2        : sequelize,mysql2 노드팩키지 2개동시 설치
+npm install -global sequelize-cli   : sequelize 명령어 팩키지  전역설치
+sequelize init                      : 현재 노드 프로젝트에 ORM 프로그램 환경 구성해주는 sequelize 명령어
+
+
+npm i moment
+
+
+
+2)모델관련 폴더 설명
+sequelize init   명령어 실행이후 시퀄라이즈 ORM은 현재 노드 프로젝트에 ORM 프로젝트 구조를 추가 구성해줍니다. 
+ㄴconfig : DB연결정보 환경설정 파일
+ㄴmodels : 테이블과 맵핑되는 모델 정의 파일 보관 및 모델 기반 프로그래밍 처리 모듈 제공
+ㄴmigrations : 구조변경 마이그레이션 계획정보 기록
+ㄴseeders  : 테이블 생성시 초기 데이터 생성설정
+
+
+
+3)models\index.js 모듈생성 및 DB객체 정의하기   
+-models\index.js 파일의 내용을 삭제하고 하기 코드를 붙여넣는다.
+
+
+const path = require('path');
+const Sequelize = require('sequelize');
+
+//개발모드 환경설정
+const env = process.env.NODE_ENV || 'development';
+
+//DB연결 환경설정정보 변경처리//관련정보 수정
+const config = require(path.join(__dirname,'..','config','config.json'))[env];
+
+//데이터 베이스 객체
+const db= {};
+
+//DB연결정보로 시퀄라이즈 ORM 객체 생성
+const sequelize = new Sequelize(config.database,config.username,config.password,config);
+
+//DB 처리 객체에 시퀄라이즈 정보 맵핑처리
+//이후 DB객체를 통해 데이터 관리가능해짐
+db.sequelize = sequelize; //DB연결정보를 포함한 DB제어 객체속성(CRUD)
+db.Sequelize = Sequelize; //Sequelize팩키지에서 제공하는 각종 데이터 타입 및 관련 객체정보를 제공함
+
+
+//회원모델 모듈파일 참조하고 db속성정의하기
+//db.Member = require('./member.js')(sequelize,Sequelize);
+
+
+//db객체 외부로 노출하기 
+module.exports = db;
+
+
+
+
+
+4)configs\config.json 파일내 DB연결정보 세팅하기 
+Config폴더내 config.json파일 오픈 후 환경에 맞는  DB연결정보(development) 수정 후 저장
+
+{
+  "development": {
+    "username": "root",
+    "password": "eddy524640!",
+    "database": "eddy-blog",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "timezone":"+09:00"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
+
+
+5)app.js 파일내 Sequelize ORM 설정하기 
+
+var sequelize = require('./models/index.js').sequelize;
+
+....
+
+var app = express();
+...
+
+//mysql과 자동연결처리 및 모델기반 물리 테이블 생성처리제공
+sequelize.sync(); 
+
+
+6)회원/게시글 모델 파일 정의 하기 
+
+-회원테이블과 맵핑되는 회원 모델 정의하기 예시
+-models\member.js 만들기 
+
+module.exports = (sequelize, DataTypes) => {
+
+   //member 테이블과 맵핑되는 member모델 정의
+   //return sequelize.define()메소드를 통해 물리테이블과 맵핑되는 모델클래스를 생성하고 반환한다.
+   //sequelize.define('맵핑되는 물리 테이블명',{테이블의 데이터구조 정의},{테이블생성 옵션정보})
+   //맵핑되는 물리 테이블명은 단수형태로 정의할것..실제생성되는 물리테이블은 복수형태로 생성됨. member(모델명) ->members(물리테이블명)
+   //{테이블의 데이터구조 정의} = {속성(컬럼)명:{각종세팅정보정의(데이터타입,null허용여부,primarykey여부,자동채번여부..)},속성(컬럼)명:{},속성(컬럼)명:{}}
+   return sequelize.define('member', 
+   {
+       member_id: {
+            autoIncrement: true,
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            comment: '사용자고유번호',
+       },
+       email: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        comment: '메일주소',
+      },
+      member_pwd: {
+        type: DataTypes.STRING(500),
+        allowNull: false,
+        comment: '사용자암호',
+      },
+      name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        comment: '이름',
+      },
+      birthday: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: '생년월일-19740523',
+      },
+      profile_path: {
+        type: DataTypes.STRING(300),
+        allowNull: true,
+        comment: '프로필사진경로',
+      },
+      entry_state_code: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        comment: '가입상태코드 0:사용중지 1:사용중 2:탈퇴',
+      },
+      entry_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        comment: '가입일시',
+      }
+   }, 
+   {
+       timestamps: true,
+       paranoid: true
+   });
+
+   //timestamps 는 물리적 테이블 createdAt,updatedAt컬럼을 자동추가하고
+   //데이터 신규생성일시,수정일시 데이터를 자동으로 마킹해줍니다.
+   //paranoid가 트루이면 deletedAt컬럼이 자동추가되고
+   //삭제시 삭제일시정보가 자동 마킹되고 데이터는 실제 삭제되지 않습니다.
+
+};
+
+
+
+
+
+
+
+-models\article.js 만들기 
+
+module.exports = (sequelize, DataTypes) => {
+
+   return sequelize.define('article', 
+   {
+       article_id: {
+            autoIncrement: true,
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            comment: '게시글 고유번호',
+       },
+       title: {
+        type: DataTypes.STRING(200),
+        allowNull: false,
+        comment: '글제목',
+      },
+      contents: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: '글내용',
+      },
+      email: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: '메일주소',
+      },
+      writer: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: '작성자명',
+      },
+      display: {
+        type: DataTypes.STRING(1),
+        allowNull: false,
+        comment: '게시여부 Y:게시 N:게시안함',
+      },
+      view_cnt: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        comment: '조회수',
+      },
+      regist_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        comment: '등록일시',
+      }
+   }, 
+   {
+       timestamps: false,
+       paranoid: false
+   });
+
+   //timestamps 는 물리적 테이블 createdAt,updatedAt컬럼을 자동추가하고
+   //데이터 신규생성일시,수정일시 데이터를 자동으로 마킹해줍니다.
+   //paranoid가 트루이면 deletedAt컬럼이 자동추가되고
+   //삭제시 삭제일시정보가 자동 마킹되고 데이터는 실제 삭제되지 않습니다.
+
+};
+
+
+
+
+7)models/index.js db객체에 모델 속성 노출하기 
+
+db.Member = require('./member.js')(sequelize,Sequelize);
+db.Article = require('./article.js')(sequelize,Sequelize);
+
+
+8)테이블이 정상적으로 생성되었는지 확인한다.
+
+
+
+9)Sequelize ORM 데이터 CRUD 데이터 처리하기 
+
+9.1)회원 등록하기 
+//날짜포맷 지원 moment팩키지 참조 
+var moment = require('moment');
+
+//ORM DB객체 참조 
+var db = require('../models/index');
+
+
+router.post('/entry', async(req, res, next)=> {
+
+  //회원 신규 가입처리 
+  var email = req.body.email;
+  var member_pwd = req.body.member_pwd;
+  var name = req.body.name;
+  var birthday = req.body.birthday;
+  var profile_path = req.body.profile_path;
+  var entry_state_code = req.body.entry_state_code;
+
+  var memberData ={
+    email,
+    member_pwd,
+    name,
+    birthday,
+    profile_path,
+    entry_state_code,
+    entry_date:Date.now()
+  };
+
+  var registedMember = await db.Member.create(memberData);
+
+  res.redirect('/members/list');
+});
+
+
+9.1)회원 목록 조회하기 
+/* 
+회원 목록 페이지 호출 
+http://localhost:3000/members/list
+ */
+router.get('/list', async(req, res, next)=> {
+  
+  var members = await db.Member.findAll();
+
+  res.render('member/list',{members});
+
+});
+
+9.3)단일 회원정보 조회하기 
+/* 
+회원정보 수정 페이지 호출 
+http://localhost:3000/members/modify/1
+ */
+router.get('/modify/:id', async(req, res, next)=> {
+
+  var memberIdx = req.params.id;
+  var member = await db.Member.findOne({where:{member_id:memberIdx}});
+  res.render('member/modify',{member});
+});
+
+
+9.4)단일 회원정보  수정하기
+router.post('/modify', async(req, res, next)=> {
+
+    //회원 신규 가입처리 
+    var member_id = req.body.member_id;
+    var email = req.body.email;
+    var member_pwd = req.body.member_pwd;
+    var name = req.body.name;
+    var birthday = req.body.birthday;
+    var profile_path = req.body.profile_path;
+    var entry_state_code = req.body.entry_state_code;
+  
+    var memberData ={
+      email,
+      member_pwd,
+      name,
+      birthday,
+      profile_path,
+      entry_state_code
+    };
+  
+    await db.Member.update(memberData,{where:{member_id:member_id}});
+
+  res.redirect('/members/list');
+});
+
+
+9.5)단일 회원정보  삭제하기
+
+  await db.Member.destroy({where:{member_id:member_id}});
+
+-시간되면 프로시져/SQL쿼리 직접 사용하기 
+
+============================================
+게시글 관리는 여러분이 집에서 해보세요.
+=============================================
+
+9.6)게시글 등록하기 
+9.7)게시글 목록 조회하기 
+9.8)게시글 회원정보 조회하기 
+9.9)게시글 회원정보  수정하기
+9.10)게시글 회원정보  삭제하기
+
+

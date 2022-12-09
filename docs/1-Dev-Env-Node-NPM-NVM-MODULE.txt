@@ -1,0 +1,136 @@
+주요 SW 설치 안내 링크
+-VSCode: 
+https://code.visualstudio.com/   OS별 VSCode설치 
+
+
+-Node Framework: 
+https://nodejs.org/ko/  18.12.1 LTS 다운로드 설치 
+
+-MySQL & Workbench : 
+https://dev.mysql.com/downloads/installer/   OS별 MYSQL & WORKBENCH 설치 
+
+-MYSQL 설치 블로깅 가이드 
+https://hongong.hanbit.co.kr/mysql-%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EB%B0%8F-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0mysql-community-8-0/
+
+
+
+
+1)작업 폴더생성하기 
+-C:\Practices 작업 폴더 생성
+-D:\Practices 작업 폴더 생성
+
+2)작업폴더 지정하기 
+VSCode에서 파일>폴더열기 작업폴더 지정
+
+
+3)VSCode 상단메뉴 > 터미널>새터미널 메뉴 선택 
+터미널 경로 확인
+D:\Practices>
+
+터미널 창> 기본 프로필 선택 > Command Prompt 선택 
+터미널 창 닫기 
+VSCode 상단메뉴 > 터미널>새터미널 메뉴 선택 신규터미널 오픈  cmd 선택여부 확인
+
+-node,npm 설치 버전 확인 
+node -v
+v16.13.1
+
+npm -v
+8.1.2
+
+
+4)NVM 소개 및 설치/기초 사용법
+
+다운로드 설치 for Windows
+https://github.com/coreybutler/nvm-windows/releases 
+nvm-setup.exe  or nvm-setup.zip 다운로드 압축해제 설치
+
+NVM For MAC
+https://somjang.tistory.com/entry/macOS%EC%97%90-nvm%EC%84%A4%EC%B9%98%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95-feat-brew
+https://gist.github.com/falsy/8aa42ae311a9adb50e2ca7d8702c9af1
+
+
+-주요 NVM 명령어 
+
+nvm version
+nvm ls
+nvm use 버전명
+
+nvm install 14.18.3
+nvm install 16.13.1
+nvm install 18.12.1
+
+nvm uninstall 14.18.3
+nvm uninstall 18.12.1
+
+** nvm 명령어를 인식못하면 개발툴을 재시동하거나 터미널을 닫고 터미널을 다시 오픈한다.
+** cmd나 vscode에서 nvm use시 에러나는경우는 권한문제로 관리자권한으로 cmd나 vscode를 실행한다.
+
+
+5)NPM 명령어 사용하기 
+
+-작업폴더에 SampleApp 폴더를 생성한다. 
+프로젝트 폴더 이동하기 
+cd SampleApp  
+
+-노드 프로젝트 초기화 설정하기 
+npm init 
+packaage name: 엔터
+version :엔터
+description: 샘플노드앱  엔터 
+entry point:(index.js) 엔터 
+기타: 엔터 
+
+SampleApp폴더내 packaage.json 파일 오픈 확인 
+
+SampleApp폴더내 index.js 모듈 파일 생성하기 
+console.log("노드기반 서버콘솔 로깅합니다.");
+
+-터미널 창에서 
+D:\Practices\SampleApp> node index.js 
+
+
+
+
+ㅁ주요 npm 명령어 
+
+-노드팩키지 설치하기 
+npm i moment
+npm install moment
+
+--여러 팩키지를 동시에 설치하기 
+npm install moment dotenv
+
+node_modules 폴더내 설치된 노드 팩키지 목록 확인
+
+
+npm install --save  -dev [팩키지명]  
+npm install -global [팩키지명]  or   npm i -g 팩키지명
+전역 팩키지 설치경로: c:\users\사용자계정\appdata\roamng\npm 경로내 설치
+
+npm uninstall 팩키지명
+
+
+-터미널 창에서 
+D:\Practices\SampleApp> node index.js 
+
+-index.js 파일내 하기내용 코딩 
+var moment = require('moment');
+
+require('dotenv').config();
+
+var date = Date.now();
+console.log("오늘날짜",date);
+
+var dateString = moment(Date.now()).format("YYYY-MM-DD hh:mm:ss");
+console.log("Moment 오늘날짜",dateString);
+
+
+var uploadPath = process.env.UPLOAD_PATH;
+console.log("기본설정 업로드 경로확인",uploadPath);
+
+console.log("노드기반 서버콘솔 로깅합니다.");
+
+
+
+

@@ -1,0 +1,302 @@
+
+1)제공된 부트스트랩 템플릿 압축 폴더를 다운받는다.
+
+routes\index.js 라우팅 파일을 오픈한다.
+하기 샘플 라우팅 메소드 정의 
+
+/* 
+메인페이지
+http://localhost:3000
+ */
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Express' });
+});
+
+
+/* 
+샘플페이지
+http://localhost:3000/sample
+*/
+router.get('/sample', function(req, res, next) {
+  res.render('sample');
+});
+
+
+/* 
+회사소개 
+http://localhost:3000/company/intro
+*/
+router.get('/company/intro', function(req, res, next) {
+  res.render('index',{ title: 'Express' });
+});
+
+
+/* 
+문의하기 
+http://localhost:3000/company/intro
+*/
+router.get('/contact', function(req, res, next) {
+  res.render('index',{ title: 'Express' });
+});
+
+
+-views폴더내 sample.ejs파일을 생성하고 
+sample.ejs내에 하기 html코드를 정의하고 저장한다.
+
+-views/sample.ejs
+
+<html>
+    <head>샘플페이지</head>
+    <body>
+        <h1>샘플 웹페이지입니다.</h1>
+    </body>
+</html>
+
+
+
+2)제공된 부트스트랩 템플릿 압축 폴더를 다운받는다.
+-압축을 푼다.
+-HTML5_Seed_Project 폴더내 모든 폴더와 파일을 복사해 public 폴더내 복사 붙여넣는다.
+-http://localhost:3000/ 호출 샘플 템플릿 확인 
+
+
+
+
+3)회원정보/ 게시글정보관리 라우팅 파일 생성 및 라우팅 주소체계수립/HTML 템플릿 적용하기
+
+3.1)라우팅 파일을 생성한다.
+-routes 폴더내에 article.js,member.js 라우팅 파일을 생성한다.
+routes\article.js
+routes\member.js
+
+
+
+3.2)라우팅 파일에 index.js라우팅 파일의 내용을 복사 붙여넣고 비동기 라우팅 메소드를 정의한다.
+
+-member.js  라우팅 파일 정의하기
+
+var express = require('express');
+var router = express.Router();
+
+/* 
+로그인 페이지 호출
+http://localhost:3000/members/login
+ */
+router.get('/login', async(req, res, next)=>{
+  res.render('sample');
+});
+
+
+/* 
+회원가입 페이지 호출 
+http://localhost:3000/members/entry
+ */
+router.get('/entry', async(req, res, next)=> {
+  res.render('sample');
+});
+
+
+module.exports = router;
+
+
+
+-article.js  라우팅 파일 정의하기
+
+
+var express = require('express');
+var router = express.Router();
+
+
+/* 
+게시글 목록 페이지 호출
+http://localhost:3000/articles/list
+ */
+router.get('/list', async(req, res, next)=>{
+  res.render('sample');
+});
+
+
+/* 
+게시글 등록 페이지 호출
+http://localhost:3000/articles/regist
+ */
+router.get('/regist', async(req, res, next)=> {
+  res.render('sample');
+});
+
+
+/* 
+게시글 확인/수정 페이지1 호출
+http://localhost:3000/articles/modify?aid=1
+ */
+router.get('/modify', async(req, res, next)=> {
+
+  var articleIdx = req.query.aid;
+  console.log("게시글 고유번호: ",articleIdx);
+
+  res.render('article/modify');
+});
+
+/* 
+게시글 확인/수정 페이지1 호출
+http://localhost:3000/articles/update/1
+ */
+router.get('/update/{aid}', async(req, res, next)=> {
+  var articleIdx = req.params.aid;
+  console.log("게시글 고유번호: ",articleIdx);
+
+  res.render('article/modify');
+});
+
+
+module.exports = router;
+
+
+
+3.3)라우팅 파일의 기본 라우팅 주소를 설정한다.
+-app.js 파일내 신규 생성한 라우팅 파일을 참조하고 기본 라우팅 주소를 세팅한다.
+
+
+//회원정보관리/게시글정보관리 라우팅 파일 참조 
+var memberRouter = require('./routes/member');
+var articleRouter = require('./routes/article');
+
+...
+
+
+//라우팅파일 기본라우팅 주소설정 
+app.use('/members', memberRouter);
+app.use('/articles', articleRouter);
+
+
+
+3.4)라우팅 메소드에서 호출하는 View 파일(~.ejs)을 생성하고 HTML 내용을 코딩한다.
+
+Step1)라우팅 주소에서 사용할 뷰파일을 만들고 html소스를 반영한다.
+-views폴더내 member폴더와 article폴더를 생성하고 각폴더에 ~.ejs 뷰파일을 생성한다.
+
+-views\member\login.ejs
+-views\member\entry.ejs
+
+-views\article\list.ejs
+-views\aritlce\regist.ejs
+
+-각각의 뷰파일안에  public\samples 폴더내 해당 html소스를 복사 붙여넣는다..
+
+
+
+Step2)라우팅 파일내 라우팅 메소드의  뷰파일경로와 뷰파일명 정보를 수정한다.
+routes\article.js
+routes\member.js
+
+
+
+STEP3)HTTP Request 객체와 HTTP Response 객체 활용하기 
+req = HTTP Request 객체 = 웹브라우저에서 웹서버(WAS)로 각종정보전달(웹브라우저정보,사용자입력 HTTP본문정보,쿼리스트링,파라메터정보)
+res =HTTP Response 객체 = 웹서버(WAS)에서 웹브라우저로 각종정보전달(HTML,CSS.JS,데이터..이미지..)
+
+ㅁreq = HTTP Request 객체=웹브라우저의 내용을 웹서버로 전달한다.
+req.body.html요소의 name값
+req.query.쿼리키아이디
+req.params.아이디
+
+
+ㅁres =HTTP Response 객체=웹서버의 자원을 웹브라우저로 전송한다.
+res.render('뷰파일','뷰파일에 전달하는 JSON 데이터');
+res.json('JSON 데이터');
+res.redirect('/articles/list');
+
+res.send('모든형태');
+res.file('서버상의 물리적 파일');
+
+
+
+
+STEP4) RESTFul API 라우팅 파일정의하기 
+
+-쉬는 시간 : POSTMAN 회원가입 및 설치진행 
+
+다운로드 링크: 
+https://www.postman.com/downloads/
+
+
+routes\articleAPI.js 생성
+
+
+var express = require('express');
+var router = express.Router();
+
+/* 
+게시글 JSON 목록 데이터 반환
+http://localhost:3000/api/articles
+ */
+router.get('/', async(req, res, next)=>{
+
+    var articles =[
+        { 
+            article_id:1,
+            title:"제목1입니다.",
+            contents:"내용1입니다.",
+            email:"test@test.co.kr",
+            writer:"강창훈",
+            display:"Y"
+        },
+        { 
+            article_id:2,
+            title:"제목2입니다.",
+            contents:"내용2입니다.",
+            email:"test2@test.co.kr",
+            writer:"강창훈2",
+            display:"Y"
+        }
+    ];
+
+    res.json(articles);
+});
+
+
+/* 
+게시글 JSON 목록 데이터 반환
+http://localhost:3000/api/articles
+ */
+router.post('/', async(req, res, next)=>{
+
+    var title = req.body.title;
+    var contents = req.body.contents;
+    var email = req.body.email;
+    var writer = req.body.writer;
+    var display = req.body.display;
+  
+    var article={
+      title,
+      contents,
+      email,
+      writer,
+      display
+    };
+
+    console.log("전달 단일 게시글 데이터: ",article);
+
+    res.json(article);
+});
+
+
+module.exports = router;
+
+
+-app.js 내 API라우터 설정 
+
+var articleAPIRouter = require('./routes/articleAPI');
+
+....
+
+app.use('/api/articles', articleAPIRouter);
+
+
+
+
+
+
+
+
+
